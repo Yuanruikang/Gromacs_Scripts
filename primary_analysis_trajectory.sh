@@ -1,6 +1,6 @@
 #!/bin/bash
 name=" "
-
+system=""
 ########################PART1 Does the system have balanced######################
 
 #***inspect the Energy properties
@@ -45,9 +45,9 @@ gmx mindist -f ${name}.trr -s ${name}.tpr -od minimal-periodic-distance.xvg -pi
 
 sed -i.bak 'M,Nd' filename > newfilename#delete the M-N lines
 
-sed -e '/TIP3/d'  ${name}.gro  > ${name}_nowater.gro   # 删除a.txt中含"abc"的行，将操作之后的结果保存到a.log
+sed -e '/TIP3/d'  step6.6_equilibration.gro  > ${name}_nowater.gro   # 删除a.txt中含"abc"的行，将操作之后的结果保存到a.log
 
-sed '/TIP3/d;/POT/d' ${name}.gro  > ${name}_nowater.gro   # 删除含字符串"abc"或“efg"的行，将结果保存到a.log
+sed '/TIP3/d;/POT/d' step6.6_equilibration.gro  > ${name}_nowater.gro   # 删除含字符串"abc"或“efg"的行，将结果保存到a.log
 
 gmx make_ndx -f Pro.gro -o index_pbc.ndx
 
@@ -73,3 +73,4 @@ gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-all-atom-vs-average.xvg
 gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-backbone-vs-average.xvg
 
 #analysis the membrane
+gmx distance -s Pro.tpr -f Pro_noPBC.xtc -select  'cog of group "PROT" plus cog of group "MEMB"' -oav -oall 1dis.xvg -n index.ndx
