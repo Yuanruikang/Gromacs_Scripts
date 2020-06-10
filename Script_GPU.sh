@@ -2,7 +2,7 @@
 set num = 24
 set gpu_id = 1
 set system = "POPC8CHL2"
-
+gmx make_ndx -f step5_input.gro -o index.ndx
 #minimization
 gmx grompp -f step6.0_minimization.mdp -o step6.0_minimization.tpr -c step5_input.gro -p topol.top
 
