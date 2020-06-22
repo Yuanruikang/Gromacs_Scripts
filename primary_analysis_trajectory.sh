@@ -49,7 +49,7 @@ sed -e '/TIP3/d'  step6.6_equilibration.gro  > ${name}_nowater.gro   # 删除a.t
 
 sed '/TIP3/d;/POT/d' step6.6_equilibration.gro  > ${name}_nowater.gro   # 删除含字符串"abc"或“efg"的行，将结果保存到a.log
 
-gmx make_ndx -f Pro.gro -o index_pbc.ndx
+gmx make_ndx -f ${name}.gro -o index_pbc.ndx -n index.ndx
 
 gmx trjconv -s ${name}.tpr -f ${name}.trr -o ${name}_noPBC.xtc -center -pbc mol -n index_pbc.ndx
 
@@ -73,4 +73,5 @@ gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-all-atom-vs-average.xvg
 gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-backbone-vs-average.xvg
 
 #analysis the membrane
-gmx distance -s Pro.tpr -f Pro_noPBC.xtc -select  'cog of group "PROT" plus cog of group "MEMB"' -oav -oall 1dis.xvg -n index.ndx
+a P | a O11 | a O12 | a O13 | a O14
+gmx distance -s ${system}.tpr -f ${system}_noPBC.xtc -select  'cog of group "PROT" plus cog of group "MEMB"' -oav -oall 1dis.xvg -n index.ndx

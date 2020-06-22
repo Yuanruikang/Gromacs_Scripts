@@ -32,8 +32,13 @@ end
 # Production
 
 gmx grompp -f step7_production.mdp -o ${system}.tpr -c step6.6_equilibration.gro -n index.ndx -p topol.top
-cp step6.6_equilibration.gro ../6.0-6.6
-#gmx mdrun -ntmpi 1 -ntomp 24 -gpu_id {$gpu_id} -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${system}
+cp step6.6_equilibration.gro ../
+cp index.ndx ../
+cp ${system}.tpr ../
+cd ..
+gmx mdrun -ntmpi 1 -ntomp 24 -gpu_id ${gpu_id} -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${system}
+
+date
 
 #gmx convert-tpr -s ${system}.tpr -extend 400000 -o ${system}1.tpr #extend ps
 
