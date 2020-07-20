@@ -1,7 +1,11 @@
+#!/bin/bash
+
 #analysis the membrane
 echo "MEMB" | gmx trjconv -f ${name}_noPBC_fit.xtc -s  ${name}.tpr -o bilayer_${name}.pdb -n index_pbc.ndx -b 150000 -e 200000
+
 #membrane Density
-echo gmx density -f ${name}_noPBC.xtc -${name}.tpr -d z -center -o water_density.xvg -b 150000 -e 200000
+
+gmx density -f ${name}_noPBC.xtc -s ${name}.tpr -d z -center -o water_density.xvg -b 150000 -e 200000 -n index_pbc.ndx
 
 #membrane order parameter
 {
