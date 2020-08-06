@@ -36,9 +36,11 @@ cp index.ndx ../
 cp ${name}.tpr ../
 cd ..
 gmx -nocopyright mdrun -ntmpi 1 -ntomp 24 -gpu_id ${gpu_id} -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${name}
-
+mkdir primary_info
+mkdir density
+mkdir 
 date
 
-#gmx convert-tpr -s ${name}.tpr -extend 100000 -o ${name}1.tpr #extend ps
+#gmx convert-tpr -s ${name}.tpr -extend 100000 -o ${name}.tpr #extend ps
 
-#gmx mdrun -ntmpi 1 -ntomp 24 -gpu_id 1 -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${name} -cpi ${name}.cpt -append -s ${name}1.tpr
+#gmx mdrun -ntmpi 1 -ntomp 20 -gpu_id 0 -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${name} -cpi ${name}.cpt -append -s ${name}.tpr

@@ -5,30 +5,31 @@ echo "MEMB" | gmx trjconv -f ${name}_noPBC_fit.xtc -s  ${name}.tpr -o bilayer_${
 
 #membrane Density
 
-gmx density -f ${name}_noPBC.xtc -s ${name}.tpr -d z -center -o water_density.xvg -b 150000 -e 200000 -n index_pbc.ndx
+gmx density -f ${name}_noPBC.xtc -s ${name}.tpr -d z -center -symm -relative -o water_density.xvg -b 150000 -e 200000 -tu ns -n index_pbc.ndx
 
 #membrane order parameter
+gmx order -f ${name}_noPBC.xtc -s ${name}.tpr  -n sn1.ndx -od deuter_sn1.xvg -b 250000 -e 300000
 {
-echo a C3
-echo a C31
-echo a C32
-echo a C33
-echo a C34
-echo a C35
-echo a C36
-echo a C37
-echo a C38
-echo a C39
-echo a C310
-echo a C311
-echo a C312
-echo a C313
-echo a C314
-echo a C315
-echo a C316
-} | gmx make_ndx  -f ${name}_final_frame.gro -o sn1.ndx
+  echo a C31
+  echo a C32
+  echo a C33
+  echo a C34
+  echo a C35
+  echo a C36
+  echo a C37
+  echo a C38
+  echo a C39
+  echo a C310
+  echo a C311
+  echo a C312
+  echo a C313
+  echo a C314
+  echo a C315
+  echo a C316
+  echo del 0-15
+  echo q
+} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn1.ndx
 
-#MUST exclude CHL
 {
   echo a C21
   echo a C22
@@ -48,12 +49,114 @@ echo a C316
   echo a C216
   echo a C217
   echo a C218
-} | gmx make_ndx  -f ${name}_final_frame.gro -o sn2.ndx
-gmx order -f run.xtc -s topol.tpr  -n sn1.ndx -od deuter_sn1.xvg
+} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn2.ndx
+
+{
+  echo a C31
+  echo a C32
+  echo a C33
+  echo a C34
+  echo a C35
+  echo a C36
+  echo a C37
+  echo a C38
+  echo a C39
+  echo a C310
+  echo a C311
+  echo a C312
+  echo a C313
+  echo a C314
+  echo a C315
+  echo a C316
+  echo a C317
+  echo a C318
+  echo del 0-15
+  echo q
+} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn1_SDPC.ndx
+
+{
+  echo a C21
+  echo a C22
+  echo a C23
+  echo a C24
+  echo a C25
+  echo a C26
+  echo a C27
+  echo a C28
+  echo a C29
+  echo a C210
+  echo a C211
+  echo a C212
+  echo a C213
+  echo a C214
+  echo a C215
+  echo a C216
+  echo a C217
+  echo a C218
+  echo a C219
+  echo a C220
+  echo a C221
+  echo a C222
+  echo del 0-15
+  echo q
+} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn2_SDPC.ndx
+
+{
+  echo a C31
+  echo a C32
+  echo a C33
+  echo a C34
+  echo a C35
+  echo a C36
+  echo a C37
+  echo a C38
+  echo a C39
+  echo a C310
+  echo a C311
+  echo a C312
+  echo a C313
+  echo a C314
+  echo a C315
+  echo a C316
+  echo a C317
+  echo a C318
+  echo del 0-15
+  echo q
+
+} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn1_SAPC.ndx
+
+{
+  echo a C21
+  echo a C22
+  echo a C23
+  echo a C24
+  echo a C25
+  echo a C26
+  echo a C27
+  echo a C28
+  echo a C29
+  echo a C210
+  echo a C211
+  echo a C212
+  echo a C213
+  echo a C214
+  echo a C215
+  echo a C216
+  echo a C217
+  echo a C218
+  echo a C219
+  echo a C220
+  echo del 0-15
+  echo q
+} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn2_SAPC.ndx
+
 #PO4
+gmx make_ndx -f ${name}.gro -o index_pbc.ndx -n index_pbc.ndx
 a P | a O11 | a O12 | a O13 | a O14
-gmx distance -s ${name}.tpr -f ${name}_noPBC.xtc -select  'cog of group "MEMB" plus cog of group "PROT"' -oav Distance_PROT_av.xvg -oall Distance_PROT_all.xvg -n index_pbc.ndx
-gmx distance -s ${name}.tpr -f ${name}_noPBC.xtc -select  'cog of group "MEMB" plus cog of group "PO4"' -oav Distance_PO4_av.xvg -oall Distance_PO4_all.xvg -n index_pbc.ndx
+gmx distance -s ${name}.tpr -f ${name}_noPBC.xtc -select  'cog of group "MEMB" plus cog of group "PROT"' -oav Distance_PROT_av.xvg -oall Distance_PROT_all.xvg -n index_pbc.ndx -tu ns
+gmx distance -s ${name}.tpr -f ${name}_noPBC.xtc -select  'cog of group "MEMB" plus cog of group "PO4_UP"' -oav Distance_PO4_av_UP.xvg -oall Distance_PO4_all_UP.xvg -n index_pbc.ndx -tu ns
+gmx distance -s ${name}.tpr -f ${name}_noPBC.xtc -select  'cog of group "MEMB" plus cog of group "PO4_DOWN"' -oav Distance_PO4_av_DOWN.xvg -oall Distance_PO4_all_DOWN.xvg -n index_pbc.ndx -tu ns
+
 #N(CH3)3
 a N | a C13 | a H13A | a H13B | a H13C | a C14 | a H14A | a H14B | a H14C | a C15 | a H15A | a H15B | a H15C
 gmx distance -s ${name}.tpr -f ${name}_noPBC.xtc -select  'cog of group "MEMB" plus cog of group "NCH33"' -oav Distance_NCH33_av.xvg -oall Distance_NCH33_all.xvg -n index_pbc.ndx
