@@ -57,24 +57,24 @@ echo -e "MEMB \n system" | gmx trjconv -s ${name}.tpr -f ${name}.trr -o ${name}_
 
 echo 1 1 | gmx trjconv -f ${name}_noPBC.xtc -s  ${name}.tpr -fit rot+trans -o ${name}_noPBC_fit_Prot.xtc -n index_pbc.ndx
 
-frame=300000
+frame=200000
 echo 0 | gmx trjconv -f ${name}_noPBC.xtc -s  ${name}.tpr -o ${name}_final_frame.gro -dump $frame -sep -n index_pbc.ndx
 
 
 #Gyrate
-echo 1 | gmx gyrate -s ${name}.tpr -f ${name}_noPBC_fit_Prot.xtc -o gyrate_fit_${name}.xvg
+echo 1 | gmx gyrate -s ../${name}.tpr -f ../${name}_noPBC_fit_Prot.xtc -o gyrate_fit_${name}.xvg
 
 #RMSF
-gmx rmsf -f ${name}.trr -s ${name}.tpr -o rmsf-per-residue.xvg -ox average.pdb -oq bfactors-residue.pdb -res
+gmx rmsf -f ${name}.trr -s ${name}.tpr -o rmsf-per-residue_${name}.xvg -ox average_${name}.pdb -oq bfactors-residue_${name}.pdb -res
 
 #Comparison with the initial structure
 
-echo 1 1 | gmx rms -s ${name}.tpr -f ${name}_noPBC.xtc -o rmsd_all_atoms_vs_start.xvg -tu ns
+echo 1 1 | gmx rms -s ../${name}.tpr -f ../${name}_noPBC.xtc -o rmsd_all_atoms_vs_start_${name}.xvg -tu ns
 
-echo 4 4 | gmx rms -s ${name}.tpr -f ${name}_noPBC.xtc -o rmsd_backbone_vs_start.xvg -tu ns
+echo 4 4 | gmx rms -s ${name}.tpr -f ${name}_noPBC.xtc -o rmsd_backbone_vs_start_${name}.xvg -tu ns
 
-echo "Protein" | gmx trjconv -f ${name}_noPBC.xtc  -s ${name}.tpr -o traj_protein_noPBC.xtc
+echo "Protein" | gmx trjconv -f ${name}_noPBC.xtc  -s ${name}.tpr -o traj_protein_noPBC_${name}.xtc
 
-gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-all-atom-vs-average.xvg -tu ns
+gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-all-atom-vs-average_${name}.xvg -tu ns
 
-gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-backbone-vs-average.xvg -tu ns
+gmx rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-backbone-vs-average_${name}.xvg -tu ns

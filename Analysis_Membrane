@@ -1,14 +1,15 @@
 #!/bin/bash
 
 #analysis the membrane
-echo "MEMB" | gmx trjconv -f ${name}_noPBC_fit.xtc -s  ${name}.tpr -o bilayer_${name}.pdb -n index_pbc.ndx -b 150000 -e 200000
+echo "MEMB" | gmx trjconv -f ${name}_noPBC_fit.xtc -s  ${name}.tpr -o bilayer_${name}.pdb -n index_pbc.ndx -b 150000 -e 300000
 
 #membrane Density
 
-gmx density -f ${name}_noPBC.xtc -s ${name}.tpr -d z -center -symm -relative -o water_density.xvg -b 150000 -e 200000 -tu ns -n index_pbc.ndx
+gmx density -f ../${name}_noPBC.xtc -s ../${name}.tpr -d z -center -symm -relative -o water_density_${name}.xvg -b 150000 -e 300000 -n ../index_pbc.ndx
 
 #membrane order parameter
-gmx order -f ${name}_noPBC.xtc -s ${name}.tpr  -n sn1.ndx -od deuter_sn1.xvg -b 250000 -e 300000
+gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn1_${name}.ndx -od deuter_sn1_${name}.xvg -b 250000 -e 300000
+gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deuter_sn2_${name}.xvg -b 250000 -e 300000
 {
   echo a C31
   echo a C32
@@ -49,6 +50,8 @@ gmx order -f ${name}_noPBC.xtc -s ${name}.tpr  -n sn1.ndx -od deuter_sn1.xvg -b 
   echo a C216
   echo a C217
   echo a C218
+  echo del 0-15
+  echo q
 } | gmx make_ndx  -f ${name}_final_frame0.gro -o sn2.ndx
 
 {
@@ -163,3 +166,4 @@ gmx distance -s ${name}.tpr -f ${name}_noPBC.xtc -select  'cog of group "MEMB" p
 #Headgroups
 pymol
 show sticks, name C1+C2+C3+N4+C5+C6+O7+P8+O9+O10+O11
+gmx rdf -f ../${name}_noPBC.xtc -s ../${name}.tpr -o OW_rdf_${name}.xvg -rdf mol_com -n water.ndx -b 150000
