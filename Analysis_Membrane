@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #analysis the membrane
 echo "MEMB" | gmx trjconv -f ${name}_noPBC_fit.xtc -s  ${name}.tpr -o bilayer_${name}.pdb -n index_pbc.ndx -b 150000 -e 300000
 gmx rdf -f ../${name}_noPBC.xtc -s ../${name}.tpr -o OW_rdf_${name}.xvg -rdf mol_com -n water.ndx -b 150000
