@@ -1,0 +1,42 @@
+#!/bin/bash
+name=19A
+begin=0
+end=1
+r_0="MEMB"
+AA_nums=2
+rm -rf log
+mkdir log
+#################################################
+type=0
+echo -e "$r_0" |gmx trjconv -s ../${name}.tpr  -f ../${name}_noPBC.xtc -n ../index.ndx -o self-${type}.xtc -b ${begin}  -e ${end}
+echo -e "$r_0" |gmx convert-tpr -s ../${name}.tpr -n ../index.ndx -o self-${type}.tpr
+gmx mdrun -rerun self-${type}.xtc -s self-${type}.tpr -o self-${type}.trr -e self-${type}.edr -g self-${type}_energy.log
+echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f self-${type}.edr -o self-${type}.xvg  | tail -3 | awk '{print  $3}'> self-${type}.log
+mv self-${type}.log log
+#################################################
+type=1
+
+  {
+	  echo q
+  }|gmx make_ndx -f ../${name}.tpr -o ${type}.ndx -n ../index.ndx
+  echo 1 |gmx trjconv -s ../${name}.tpr  -f ../${name}_noPBC.xtc -n ${type}.ndx -o self-${type}.xtc -b ${begin}  -e ${end}
+  echo 1 |gmx convert-tpr -s ../${name}.tpr -n ${type}.ndx -o self-${type}.tpr
+  gmx mdrun -rerun self-${type}.xtc -s self-${type}.tpr -o self-${type}.trr -e self-${type}.edr -g self-${type}_energy.log
+  echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f self-${type}.edr -o self-${type}.xvg  | tail -3 | awk '{print  $3}'> self-${type}.log
+  mv self-${type}.log log
+  ###############################################
+  {
+    echo -e "1 |  17 "
+	  echo q
+  } |gmx make_ndx -f ../${name}.tpr -o inter_${type}.ndx -n ../index.ndx
+  echo -e "r_$type_MEMB" |gmx trjconv -s ../${name}.tpr  -f ../${name}_noPBC.xtc -n inter_${type}.ndx -o inter-${type}.xtc -b ${begin}  -e ${end}
+  echo -e "r_$type_MEMB" |gmx convert-tpr -s ../${name}.tpr -n inter_${type}.ndx -o inter-${type}.tpr
+  gmx mdrun -rerun inter-${type}.xtc -s inter-${type}.tpr -o inter-${type}.trr -e inter-${type}.edr -g inter-${type}_energy.log
+  echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f inter-${type}.edr -o inter-${type}.xvg  | tail -3 | awk '{print  $3}'> inter-${type}.log
+  mv inter-${type}.log log
+  ###############################################
+  cd log
+  paste self-${type}.log  self-0.log inter-${type}.log > all.dat
+  VDW_energy=`awk 'NR==1 {print $3-$2-$1}' all.dat`
+  Coulomb_energy=`awk 'NR>=2 {C_plus+=$3; C_g1+=$1; C_g2+=$2} END{print (C_plus-C_g1-C_g2)/2.0}' all.dat`
+  echo "$type VDW_energy $VDW_energy Coulomb_energy $Coulomb_energy" >> all.date

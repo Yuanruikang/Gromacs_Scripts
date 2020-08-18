@@ -1,23 +1,25 @@
-#!/bin/csh
+#!/bin/bash
 read -p "Are the parameters of system set well?:" Yes
-set gpu_id = 0
-set name = "POPC-insert"
-set final_frame = 500000
-set extend_ps = 200000
-set cnt = 1
-set cntmax = 5
-set step = 0
+gpu_id=0
+name="POPC-insert"
+final_frame=500000
+extend_ps=200000
+cnt=1
+cntmax=5
+step=0
 echo "=================================
 $gpu_id $name $final_frame
 ================================="
 #extend ps
-#gmx convert-tpr -s ${name}.tpr -extend $extend_ps -o ${name}.tpr
+gmx convert-tpr -s ${name}.tpr -extend $extend_ps -o ${name}.tpr
 gmx mdrun -ntmpi 1 -ntomp 20 -gpu_id $gpu_id -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${name} -cpi ${name}.cpt -append -s ${name}.tpr
+
 mv primary_info primary_info_last
 mv Energy  Energy_last
 mkdir primary_info
 mkdir Energy
 cd Energy
+
 echo "Potential"| gmx -nocopyright energy -f ../${name}.edr -o energy_Pntential.xvg -b $step
   #xmgrace energy_Potential.xvg
 echo "Kinetic-En"| gmx -nocopyright energy -f ../${name}.edr -o energy_kinetic.xvg -b $step
