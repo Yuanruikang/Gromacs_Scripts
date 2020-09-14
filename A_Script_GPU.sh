@@ -1,13 +1,13 @@
 #!/bin/bash
+#final_frame=
 gpu_id=1
-name="POPC"
-final_frame=100000
+name=""
 cnt=1
 cntmax=5
 step=0
 cpu_nums=20
 
-gmx -nocopyright make_ndx -f step5_input.gro -o index.ndx
+echo 'q' | gmx -nocopyright make_ndx -f step5_input.gro -o index.ndx
 
 mkdir Minimization
 mkdir NVT-NPT_Equilibration
@@ -28,11 +28,11 @@ do
     then
         gmx -nocopyright grompp -f ../step6.${cnt}_equilibration.mdp -o step6.${cnt}_equilibration.tpr -c ../Minimization/step6.${pcnt}_minimization.gro -r ../Minimization/step6.0_minimization.gro -n ../index.ndx -p ../topol.top
 
-	gmx -nocopyright mdrun -ntmpi 1 -ntomp 24 -gpu_id ${gpu_id} -pme gpu -bonded gpu  -nb gpu -update gpu -v -deffnm step6.${cnt}_equilibration
+        gmx -nocopyright mdrun -ntmpi 1 -ntomp 24 -gpu_id ${gpu_id} -pme gpu -bonded gpu  -nb gpu -update gpu -v -deffnm step6.${cnt}_equilibration
     else
-	gmx -nocopyright grompp -f ../step6.${cnt}_equilibration.mdp -o step6.${cnt}_equilibration.tpr -c step6.${pcnt}_equilibration.gro -r ../Minimization/step6.0_minimization.gro -n ../index.ndx -p ../topol.top
+        gmx -nocopyright grompp -f ../step6.${cnt}_equilibration.mdp -o step6.${cnt}_equilibration.tpr -c step6.${pcnt}_equilibration.gro -r ../Minimization/step6.0_minimization.gro -n ../index.ndx -p ../topol.top
 
-	gmx -nocopyright mdrun -ntmpi 1 -ntomp 24 -gpu_id ${gpu_id} -pme gpu -bonded gpu  -nb gpu -update gpu -v -deffnm step6.${cnt}_equilibration
+        gmx -nocopyright mdrun -ntmpi 1 -ntomp 24 -gpu_id ${gpu_id} -pme gpu -bonded gpu  -nb gpu -update gpu -v -deffnm step6.${cnt}_equilibration
     fi
     let "cnt++"
 done
@@ -45,17 +45,17 @@ gmx -nocopyright mdrun -ntmpi 1 -ntomp ${cpu_nums} -gpu_id ${gpu_id} -pme gpu -b
 
 # Production
 gmx -nocopyright grompp -f ../step7_production.mdp -o ${name}.tpr -c step6.6_equilibration.gro -n ../index.ndx -p ../topol.top
-cp step6.6_equilibration.gro ../../
 cp ../index.ndx ../../
 cp ${name}.tpr ../../
 cd ../../
-gmx -nocopyright mdrun -ntmpi 1 -ntomp ${cpu_nums} -gpu_id ${gpu_id} -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${name}
+gmx -nocopyright mdrun -ntmpi 1 -ntomp ${cpu_nums} -gpu_id ${gpu_id} -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${name} 
 
 mkdir primary_info
 mkdir density
 mkdir Scd
 mkdir RDF
 mkdir Energy
+mkdir Distance
 #################################################
 cd Energy
 echo "Potential"| gmx -nocopyright energy -f ../${name}.edr -o energy_Pntential.xvg -b $step
@@ -76,22 +76,24 @@ echo -e "Box-X \n Box-Y \n Box-Z" | gmx -nocopyright energy -f ../${name}.edr -o
   #xmgrace -block box.xvg -bxy 1:2  -bxy 1:3 -bxy 1:4
 cd ../
 #################################################
-echo "q"| gmx -nocopyright make_ndx -f ${name}.gro -o index_pbc.ndx -n index.ndx
-echo -e "MEMB \n system" | gmx -nocopyright trjconv -s ${name}.tpr -f ${name}.trr -o ${name}_noPBC.xtc -center -pbc mol -n index_pbc.ndx
-echo 0 | gmx -nocopyright trjconv -f ${name}_noPBC.xtc -s  ${name}.tpr -o ${name}_finalframe.gro -dump $final_frame -sep -n index_pbc.ndx
+mv index.ndx index_pbc.ndx
+
+echo -e "Protein \n system" | gmx  trjconv -s ${name}.tpr -f ${name}.trr -o Traj_${name}_CenPROT.xtc -center -pbc mol -n index_pbc.ndx
+echo -e "MEMB \n system" | gmx  trjconv -s ${name}.tpr -f Traj_${name}_CenPROT.xtc -o Traj_${name}_CenMEMB.xtc -center -pbc mol -n index_pbc.ndx
+
+#echo -e "non-Water" | gmx  trjconv -f ${name}.gro -s  ${name}.tpr -o ${name}_nowater.gro -pbc mol -n index_pbc.ndx
+#echo -e "non-Water" | gmx trjconv -f Traj_${name}_CenMEMB.xtc -s ${name}.tpr  -o Traj_non-Water.xtc -n index_pbc.ndx
 
 cd primary_info
-echo 1 | gmx -nocopyright gyrate -s ../${name}.tpr -f ../${name}_noPBC_fit_Prot.xtc -o gyrate_fit_${name}.xvg
+echo 1 | gmx mindist -nocopyright -s ../${name}.tpr -f ../${name}.trr -n ../index_pbc.ndx -od mini-Prot_${name}.xvg -pi -tu ns -pbc yes
 
-echo 1 | gmx -nocopyright rmsf -f ../${name}.trr -s ../${name}.tpr -o rmsf-per-residue_${name}.xvg -ox average_${name}.pdb -oq bfactors-residue_${name}.pdb -res
+echo 1 | gmx -nocopyright gyrate -s ../${name}.tpr -f ../Traj_${name}_CenMEMB.xtc -o gyrate_fit_${name}.xvg
 
-echo 1 1 | gmx -nocopyright rms -s ../${name}.tpr -f ../${name}_noPBC.xtc -o rmsd_all_atoms_vs_start_${name}.xvg -tu ns
+#starting frame -b 
+#starting frame -b --!!!!!!!!!!!Attention
+echo 1 | gmx -nocopyright rmsf -s ../${name}.tpr -f ../Traj_${name}_CenMEMB.xtc  -o rmsf-per-residue_${name}.xvg -ox average_${name}.pdb -oq bfactors-residue_${name}.pdb -res
 
-echo 4 4 | gmx -nocopyright rms -s ../${name}.tpr -f ../${name}_noPBC.xtc -o rmsd_backbone_vs_start_${name}.xvg -tu ns
+echo 1 1 | gmx  rms -s ../6.0-6.6/step5_input.gro -f ../Traj_${name}_CenMEMB.xtc -o rmsd_all_atoms_vs_start_${name}.xvg -tu ns
 
-echo "Protein" | gmx -nocopyright trjconv -f ../${name}_noPBC.xtc  -s ../${name}.tpr -o traj_protein_noPBC_${name}.xtc
-
-echo 1 1 | gmx -nocopyright rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-all-atom-vs-average_${name}.xvg -tu ns
-
-echo 1 1 | gmx -nocopyright rms -f traj_protein_noPBC.xtc -s average.pdb -o rmsd-backbone-vs-average_${name}.xvg -tu ns
+echo 4 4 | gmx  rms -s ../6.0-6.6/step5_input.gro -f ../Traj_${name}_CenMEMB.xtc -o rmsd_backbone_vs_start_${name}.xvg -tu ns
 date

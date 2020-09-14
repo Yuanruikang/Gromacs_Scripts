@@ -20,7 +20,7 @@ rvdw_switch             = 1.0
 rvdw                    = 1.2
 ;
 tcoupl                  = berendsen
-tc_grps                 = PROT   MEMB   SOL_ION
+tc_grps                 = Protein   MEMB    Water_and_ions
 tau_t                   = 0.5    0.5    0.5
 ref_t                   = 310    310    310
 ;
@@ -30,6 +30,6 @@ continuation            = yes
 ;
 nstcomm                 = 100
 comm_mode               = linear
-comm_grps               = PROT   MEMB   SOL_ION
+comm_grps               = Protein   MEMB    Water_and_ions
 ;
 refcoord_scaling        = com

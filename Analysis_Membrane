@@ -1,14 +1,14 @@
 #!/bin/bash
+gmx rdf -f ../ -s ../ -ref 'com of group "r30-35"' -sel 'name C24' -n index.ndx -b 400000
 #analysis the membrane
 echo "MEMB" | gmx trjconv -f ${name}_noPBC_fit.xtc -s  ${name}.tpr -o bilayer_${name}.pdb -n index_pbc.ndx -b 150000 -e 300000
 gmx rdf -f ../${name}_noPBC.xtc -s ../${name}.tpr -o OW_rdf_${name}.xvg -rdf mol_com -n water.ndx -b 150000
 #membrane Density
 
-gmx density -f ../${name}_noPBC.xtc -s ../${name}.tpr -d z -center -symm -relative -o density_${name}.xvg -b 150000 -e 300000 -ng 1 -n ../index_pbc.ndx
-
+gmx density -f ../Traj_${name}_CenMEMB.xtc -s ../${name}.tpr -d z -center  -relative -o density_${name}.xvg -b 400000 -e 800000 -ng 2 -n ../index_pbc.ndx -dens num
 #membrane order parameter
-gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn1_${name}.ndx -od deuter_sn1_${name}.xvg -b 250000 -e 300000
-gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deuter_sn2_${name}.xvg -b 250000 -e 300000
+gmx order -f ../../Traj_${name}_CenMEMB.xtc -s ../../${name}.tpr  -n sn2_${name}.ndx -o deuter_sn2_${name}.xvg -b 400000 -szonly
+gmx order -f ../../Traj_${name}_CenMEMB.xtc -s ../../${name}.tpr  -n sn1_${name}.ndx -o deuter_sn1_${name}.xvg -b 400000 -szonly
 {
   echo a C31
   echo a C32
@@ -26,9 +26,9 @@ gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deut
   echo a C314
   echo a C315
   echo a C316
-  echo del 0-15
+  echo del 0-5
   echo q
-} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn1.ndx
+} | gmx make_ndx  -f ../../${name}.gro -o sn1_POPC.ndx
 
 {
   echo a C21
@@ -49,9 +49,9 @@ gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deut
   echo a C216
   echo a C217
   echo a C218
-  echo del 0-15
+  echo del 0-5
   echo q
-} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn2.ndx
+} | gmx make_ndx  -f ../../${name}.gro -o sn2_POPC.ndx
 
 {
   echo a C31
@@ -72,9 +72,9 @@ gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deut
   echo a C316
   echo a C317
   echo a C318
-  echo del 0-15
+  echo del 0-5
   echo q
-} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn1_SDPC.ndx
+} | gmx make_ndx  -f ../../${name}.gro -o sn1_SDPC.ndx
 
 {
   echo a C21
@@ -99,9 +99,9 @@ gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deut
   echo a C220
   echo a C221
   echo a C222
-  echo del 0-15
+  echo del 0-5
   echo q
-} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn2_SDPC.ndx
+} | gmx make_ndx  -f ../../${name}.gro -o sn2_SDPC.ndx
 
 {
   echo a C31
@@ -122,10 +122,10 @@ gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deut
   echo a C316
   echo a C317
   echo a C318
-  echo del 0-15
+  echo del 0-5
   echo q
 
-} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn1_SAPC.ndx
+} | gmx make_ndx  -f ../../${name}.gro -o sn1_SAPC.ndx
 
 {
   echo a C21
@@ -148,10 +148,116 @@ gmx order -f ../${name}_noPBC.xtc -s ../${name}.tpr  -n sn2_${name}.ndx -od deut
   echo a C218
   echo a C219
   echo a C220
-  echo del 0-15
+  echo del 0-5
   echo q
-} | gmx make_ndx  -f ${name}_final_frame0.gro -o sn2_SAPC.ndx
+} | gmx make_ndx  -f ../../${name}.gro -o sn2_SAPC.ndx
 
+{
+  echo a C31
+  echo a C32
+  echo a C33
+  echo a C34
+  echo a C35
+  echo a C36
+  echo a C37
+  echo a C38
+  echo a C39
+  echo a C310
+  echo a C311
+  echo a C312
+  echo a C313
+  echo a C314
+  echo a C315
+  echo a C316
+  echo a C317
+  echo a C318
+  echo a C319
+  echo a C320
+  echo a C321
+  echo a C322
+  echo del 0-5
+  echo q
+
+} | gmx make_ndx  -f ../../${name}.gro -o sn1_DDoPC.ndx
+
+{
+  echo a C21
+  echo a C22
+  echo a C23
+  echo a C24
+  echo a C25
+  echo a C26
+  echo a C27
+  echo a C28
+  echo a C29
+  echo a C210
+  echo a C211
+  echo a C212
+  echo a C213
+  echo a C214
+  echo a C215
+  echo a C216
+  echo a C217
+  echo a C218
+  echo a C219
+  echo a C220
+  echo a C221
+  echo a C222
+  echo del 0-5
+  echo q
+} | gmx make_ndx  -f ../../${name}.gro -o sn2_DDoPC.ndx
+
+{
+  echo a C21
+  echo a C22
+  echo a C23
+  echo a C24
+  echo a C25
+  echo a C26
+  echo a C27
+  echo a C28
+  echo a C29
+  echo a C210
+  echo a C211
+  echo a C212
+  echo a C213
+  echo a C214
+  echo a C215
+  echo a C216
+  echo a C217
+  echo a C218
+  echo a C219
+  echo a C220
+  echo del 0-5
+  echo q
+} | gmx make_ndx  -f ../../${name}.gro -o sn2_DAPC.ndx
+
+
+{
+  echo a C31
+  echo a C32
+  echo a C33
+  echo a C34
+  echo a C35
+  echo a C36
+  echo a C37
+  echo a C38
+  echo a C39
+  echo a C310
+  echo a C311
+  echo a C312
+  echo a C313
+  echo a C314
+  echo a C315
+  echo a C316
+  echo a C317
+  echo a C318
+  echo a C319
+  echo a C320
+  echo del 0-5
+  echo q
+
+} | gmx make_ndx  -f ../../${name}.gro -o sn1_DAPC.ndx
 #PO4
 gmx make_ndx -f ${name}.gro -o index_pbc.ndx -n ../index_pbc.ndx
 a P | a O11 | a O12 | a O13 | a O14

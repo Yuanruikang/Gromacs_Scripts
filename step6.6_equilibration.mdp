@@ -1,9 +1,9 @@
 integrator              = md
 dt                      = 0.002
 nsteps                  = 500000
-nstxout                 = 5000
-nstvout                 = 5000
-nstfout                 = 5000
+nstxout                 = 1000
+nstvout                 = 1000
+nstfout                 = 1000
 nstcalcenergy           = 100
 nstenergy               = 1000
 nstlog                  = 1000
@@ -19,7 +19,7 @@ rvdw_switch             = 1.0
 rvdw                    = 1.2
 ;
 tcoupl                  = berendsen
-tc_grps                 = PROT   MEMB   SOL_ION
+tc_grps                 = Protein   MEMB   Water_and_ions
 tau_t                   = 0.5    0.5    0.5
 ref_t                   = 310    310    310
 ;
@@ -35,6 +35,6 @@ continuation            = yes
 ;
 nstcomm                 = 100
 comm_mode               = linear
-comm_grps               = PROT   MEMB   SOL_ION
+comm_grps               = Protein   MEMB   Water_and_ions
 ;
 refcoord_scaling        = com
