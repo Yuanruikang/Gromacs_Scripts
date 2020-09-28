@@ -34,7 +34,7 @@ cd distance
 
 gmx distance -s ../${name}.tpr -f ../Traj_${name}_CenMEMB.xtc -select 'com of group "PO4_UP" plus com of group "r30-35"' -oxyz ${name}_r30-35_PO4_XYZ -n ../index_pbc.ndx -tu ns
 
-gmx analyze -f ${name}_r30-35_PO4_XYZ.xvg -dist ${name}_r30-35_PO4_dist.xvg -b $begin_ns
+gmx analyze -f ${name}_r30-35_PO4_XYZ.xvg -dist ${name}_r30-35_PO4_dist.xvg -b $begin_ns | tail -n 6 > ${name}_r30-35_PO4_dist.data
 
 cd ..
 mkdir density

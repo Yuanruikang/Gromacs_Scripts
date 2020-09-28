@@ -1,51 +1,54 @@
-#!/bin/bash --login
-name=19A
-begin=0
-end=1
+#!/bin/bash 
+alias gmx="gmx -nocopyright"
+shopt -s expand_aliases
+shopt expand_aliases
+read -p "Please check your begining time and ending time,and other settings" yes 
+read -p "Please input the name" name
+r_0_num=13
+r_1_num=1
+begin=400000
+end=800000
 r_0="MEMB"
-r_0_num=17
-AA_amounts=43
-#alias gmx="gmx -nocopyright"
-#shopt expand_aliases
-rm -rf log
-mkdir log
+r_1="Protein"
+AA_amounts=35
+
+rm -rf ${name}_AA_log
+mkdir ${name}_AA_log
 #################################################
 type=0
 echo -e "$r_0" |gmx trjconv -s ../${name}.tpr  -f ../Traj_${name}_CenMEMB.xtc -n ../index_pbc.ndx -o self-${type}.xtc -b ${begin}  -e ${end}
 echo -e "$r_0" |gmx convert-tpr -s ../${name}.tpr -n ../index_pbc.ndx -o self-${type}.tpr
 gmx mdrun -rerun self-${type}.xtc -s self-${type}.tpr -o self-${type}.trr -e self-${type}.edr -g self-${type}_energy.log
-echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f self-${type}.edr -o self-${type}.xvg  | tail -3 | awk '{print  $3}'> self-${type}.log
-mv self-${type}.log log
+echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f self-${type}.edr -o self-${type}.xvg  | tail -5 > self-${type}.log
+mv self-${type}.log ${name}_log
 #################################################
-type=1
+type=25
 while [ "$type" -lt $AA_amounts ]; do
   {
 	  echo r$type
 	  echo q
-  }|gmx make_ndx -f ../${name}.tpr -o ${type}.ndx -n ../index.ndx
-  echo -e "r_$type" |gmx trjconv -s ../${name}.tpr  -f ../${name}_noPBC.xtc -n ${type}.ndx -o self-${type}.xtc -b ${begin}  -e ${end}
+  }|gmx make_ndx -f ../${name}.tpr -o ${type}.ndx -n ../index_pbc.ndx
+  echo -e "r_$type" |gmx trjconv -s ../${name}.tpr  -f ../Traj_${name}_CenMEMB.xtc -n ${type}.ndx -o self-${type}.xtc -b ${begin}  -e ${end}
   echo -e "r_$type" |gmx convert-tpr -s ../${name}.tpr -n ${type}.ndx -o self-${type}.tpr
   gmx mdrun -rerun self-${type}.xtc -s self-${type}.tpr -o self-${type}.trr -e self-${type}.edr -g self-${type}_energy.log
-  echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f self-${type}.edr -o self-${type}.xvg  | tail -3 | awk '{print  $3}'> self-${type}.log
-  mv self-${type}.log log
-  ###############################################
+  echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f self-${type}.edr -o self-${type}.xvg  | tail -5 > self-${type}.log
+  mv self-${type}.log ${name}_log
+###############################################
   {
-    echo -e "r$type |  $r_0_num "
+    echo "r$type |  $r_0_num "
     echo q
-  } |gmx make_ndx -f ../${name}.tpr -o inter_${type}.ndx -n ../index.ndx
-  echo -e "r_$type_MEMB" |gmx trjconv -s ../${name}.tpr  -f ../${name}_noPBC.xtc -n inter_${type}.ndx -o inter-${type}.xtc -b ${begin}  -e ${end}
-  echo -e "r_$type_MEMB" |gmx convert-tpr -s ../${name}.tpr -n inter_${type}.ndx -o inter-${type}.tpr
+  } |gmx make_ndx -f ../${name}.tpr -o inter-${type}.ndx -n ${type}.ndx
+  echo "r_${type}_MEMB" |gmx trjconv -s ../${name}.tpr  -f ../Traj_${name}_CenMEMB.xtc -n inter-${type}.ndx -o inter-${type}.xtc -b ${begin}  -e ${end}
+  echo "r_${type}_MEMB" |gmx convert-tpr -s ../${name}.tpr -n inter-${type}.ndx -o inter-${type}.tpr
   gmx mdrun -ntmpi 1 -ntomp 20 -rerun inter-${type}.xtc -s inter-${type}.tpr -o inter-${type}.trr -e inter-${type}.edr -g inter-${type}_energy.log
-  echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f inter-${type}.edr -o inter-${type}.xvg  | tail -3 | awk '{print  $3}'> inter-${type}.log
-  mv inter-${type}.log log
-  ###############################################
-  cd log
-  paste self-${type}.log  self-0.log inter-${type}.log > all.dat
-  VDW_energy=`awk 'NR==1 {print $3-$2-$1}' all.dat`
-  Coulomb_energy=`awk 'NR>=2 {C_plus+=$3; C_g1+=$1; C_g2+=$2} END{print (C_plus-C_g1-C_g2)}' all.dat`
-  echo "$type VDW_energy $VDW_energy Coulomb_energy $Coulomb_energy" >> all.date
-
-  #Total_energy=`awk 'BEGIN {VDW_energy = "'${VDW_energy}'"+0; Coulomb_energy = "'${Coulomb_energy}'"+0; print VDW_energy+Coulomb_energy}'`
-  cd ../
+  echo -e "LJ-(SR) \n Coulomb-(SR) \n Coul.-recip."  | gmx energy -f inter-${type}.edr -o inter-${type}.xvg  | tail -5 > inter-${type}.log
+  mv inter-${type}.log ${name}_log
+###############################################
+  cd ${name}_AA_log
+ 
+  cd ..
   type=$((type + 1))
 done
+rm -rf inter-*
+rm -rf self-*
+rm -rf *#

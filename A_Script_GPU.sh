@@ -55,11 +55,7 @@ cd ../../
 gmx  mdrun -ntmpi 1 -ntomp ${cpu_nums} -gpu_id ${gpu_id} -pme gpu -bonded gpu -nb gpu -update gpu -v -deffnm ${name}
 
 mkdir primary_info
-mkdir density
-mkdir Scd
-mkdir RDF
 mkdir Energy
-mkdir Distance
 #################################################
 cd Energy
 echo "Potential"| gmx  energy -f ../${name}.edr -o energy_Pntential.xvg -b $step
