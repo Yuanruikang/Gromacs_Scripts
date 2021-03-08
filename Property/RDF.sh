@@ -2,8 +2,9 @@
 alias gmx="gmx -nocopyright"
 shopt -s expand_aliases
 shopt expand_aliases
+read -p "Please check your begining time and ending time,and other settings" yes 
+read -p "Please input the name" name
 
-name="DDoPC-0919"
 begin_ps=400000
 end_ps=800000
 
@@ -40,7 +41,7 @@ cd ..
 mkdir density
 cd density
 
-echo -e "MEMB \n Protein \n P_O11_O12_O13_O14 \n"|gmx density -f ../Traj_${name}_CenMEMB.xtc -s ../${name}.tpr -d z -center -relative -o ${name}_density.xvg -b ${begin_ps} -ng 2 -n ../index_pbc.ndx -dens num
+echo -e "MEMB \n Protein \n P_O11_O12_O13_O14 \n"|gmx density -f ../Traj_${name}_CenMEMB.xtc -s ../${name}.tpr -d z -center -relative -o ${name}_density.xvg -b ${begin_ps} -ng 2 -n ../index_pbc.ndx -dens mass
 
 cd ..
 

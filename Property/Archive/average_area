@@ -1,0 +1,19 @@
+#!/bin/bash 
+alias gmx="gmx -nocopyright"
+shopt -s expand_aliases
+shopt expand_aliases
+read -p "Please check your begining time and ending time,and other settings" yes 
+read -p "Please input the name" name
+first_frame=1
+last_frame=401
+rm -r A${name}_top_area.dat
+rm -r A${name}_bottom_area.dat
+while [ "$first_frame" -lt $last_frame ]; do
+    echo $first_frame
+	area_up=`awk 'NR==1 {print $4}' output.frame${first_frame}.20x20.top_areas.dat` 
+    echo "$area_up" >> A${name}_top_area.dat
+    area_down=`awk 'NR==1 {print $4}' output.frame${first_frame}.20x20.bottom_areas.dat` 
+    echo "$area_down" >> A${name}_bottom_area.dat
+    first_frame=$((first_frame + 1))
+done
+

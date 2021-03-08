@@ -5,7 +5,7 @@ echo "MEMB" | gmx trjconv -f ${name}_noPBC_fit.xtc -s  ${name}.tpr -o bilayer_${
 gmx rdf -f ../${name}_noPBC.xtc -s ../${name}.tpr -o OW_rdf_${name}.xvg -rdf mol_com -n water.ndx -b 150000
 #membrane Density
 
-gmx density -f ../Traj_${name}_CenMEMB.xtc -s ../${name}.tpr -d z -center  -relative -o density_${name}.xvg -b 400000 -e 800000 -ng 2 -n ../index_pbc.ndx -dens num
+gmx density -f ../Traj_${name}_CenMEMB.xtc -s ../${name}.tpr -d z -center  -relative -o density_${name}.xvg -b 400000 -e 800000 -ng 2 -n ../index_pbc.ndx -dens mass
 #membrane order parameter
 gmx order -f ../../Traj_${name}_CenMEMB.xtc -s ../../${name}.tpr  -n sn2_${name}.ndx -o deuter_sn2_${name}.xvg -b 400000 -szonly
 gmx order -f ../../Traj_${name}_CenMEMB.xtc -s ../../${name}.tpr  -n sn1_${name}.ndx -o deuter_sn1_${name}.xvg -b 400000 -szonly
