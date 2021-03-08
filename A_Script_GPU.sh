@@ -15,7 +15,6 @@ echo 'q' | gmx make_ndx -f step5_input.gro -o index.ndx
 
 mkdir Minimization
 mkdir NVT-NPT_Equilibration
-
 #Minimization
 cd Minimization
 gmx grompp -f ../step6.0_minimization.mdp -o step6.0_minimization0.tpr -c ../step5_input.gro -p ../topol.top
